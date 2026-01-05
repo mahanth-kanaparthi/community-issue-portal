@@ -19,7 +19,9 @@ public interface UserService {
 
     User findById(Long id);
 
-    User findByEmail(String email);
+    UserSummary findByEmail(String email);
+
+    Boolean userExistsByEmail(String email);
 
     List<User> getUsersByRegionAndRole(Region region, Role role);
 

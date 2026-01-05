@@ -12,7 +12,7 @@
 	<artifactId>ipapp</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Community Issue Portal</name>
-	<description>Community Issue Portal:  It have majorly two roles community people and govt officers. people create account and logs in and log a complaint regarding the sanitary, community good deed, social service compaigns etc., There is one more role Admin(have all rights to the system), he will create officer accounts in there regions. Officers will logs in to their assigned region and able to see the complaints logged by the community people. And the best part is that people can be able to track their complaint status (with a complain id). Techstack: Spring boot, React, MySql. </description>
+	<description>Community Issue Portal: It has majorly two roles community people and govt officers. People create an account and log in and log a complaint regarding the sanitary, community good deed, social service campaigns, etc., There is one more role Admin (have all rights to the system), he will create officer accounts in their regions. Officers will log in to their assigned region and are able to see the complaints logged by the community people. And the best part is that people can be able to track their complaint status (with a complaint id). Techs tack: Spring boot, React, MySql. </description>
 	<url/>
 	<licenses>
 		<license/>
@@ -39,12 +39,12 @@
 			<artifactId>mysql-connector-j</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-		<!--
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
-		-->
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -60,6 +60,23 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-api</artifactId>
+			<version>0.13.0</version>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>0.13.0</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-jackson</artifactId> <!-- or jjwt-gson, jjwt-orgjson -->
+			<version>0.13.0</version>
+			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

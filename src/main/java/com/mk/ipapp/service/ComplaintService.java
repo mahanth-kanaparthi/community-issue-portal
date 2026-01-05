@@ -15,23 +15,23 @@ public interface ComplaintService {
 
     ComplaintDetail CreateComplaint(ComplaintCreateRequest request, UserSummary citizen);
 
-    Page<ComplaintSummary> getComplaintsForUser(User citizen, String status, Pageable pageable);
+    Page<ComplaintSummary> getComplaintsForUser(User user, String status, Pageable pageable);
 
-    ComplaintDetail getComplaintDetailForUser(Long complaintId, UserSummary citizen);
+    ComplaintDetail getComplaintDetailForUser(Long id, UserSummary citizen);
 
     ComplaintDetail getComplaintDetailByComplaintCode(String complaintCode); // public tracking
 
     Page<ComplaintSummary> getComplaintsForOfficer(User officer, List<String> categories, List<String> statuses, Pageable pageable);
 
-    ComplaintDetail getComplaintDetailForOfficer(Long complaintId, UserSummary officer);
+    ComplaintDetail getComplaintDetailForOfficer(Long id, UserSummary officer);
 
-    ComplaintDetail updateComplaintStatus(Long complaintId, UserSummary officer, ComplaintUpdateRequest request);
+    ComplaintDetail updateComplaintStatus(Long id, UserSummary officer, ComplaintUpdateRequest request);
 
     //Admin
 
-    Page<ComplaintSummary> getComplaintForAdmin(Long regionId, Long officerId, List<String> status, String fromDate, String toDate, Pageable pageable);
+    Page<ComplaintSummary> getComplaintForAdmin(Long id, Long officerId, List<String> status, String fromDate, String toDate, Pageable pageable);
 
-    ComplaintDetail assignComplaintToOfficer(Long complaintId);
+    ComplaintDetail assignComplaintToOfficer(Long id);
 
 
 

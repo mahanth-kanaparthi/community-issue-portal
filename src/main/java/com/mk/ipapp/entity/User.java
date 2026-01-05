@@ -2,9 +2,7 @@ package com.mk.ipapp.entity;
 
 import com.mk.ipapp.enums.Role;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,9 +13,10 @@ import java.util.List;
         name = "users",
         uniqueConstraints = @UniqueConstraint(columnNames = "email")
 )
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
-@Getter
-@Setter
+@Getter @Setter
 public class User {
 
     @Id
@@ -49,7 +48,7 @@ public class User {
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @OneToMany(mappedBy = "citizen")
+    @OneToMany(mappedBy = "complaintBy")
     private List<Complaint> complaintsRaised;
 
     @OneToMany(mappedBy = "assignedOfficer")

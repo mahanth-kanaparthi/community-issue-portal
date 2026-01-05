@@ -70,6 +70,12 @@ public class RegionServiceImpl implements RegionService {
     }
 
     @Override
+    public Boolean existsByRegionCode(Long regionCode){
+
+        return regionRepository.existsByRegionCode(regionCode);
+    }
+
+    @Override
     public List<Region> getAllRegion() {
         return regionRepository.findAll();
     }

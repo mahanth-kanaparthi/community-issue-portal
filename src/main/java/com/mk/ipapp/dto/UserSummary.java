@@ -1,11 +1,8 @@
 package com.mk.ipapp.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-@RequiredArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @Builder

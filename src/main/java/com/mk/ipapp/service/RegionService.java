@@ -16,6 +16,8 @@ public interface RegionService {
 
     Region getByRegionCode(Long regionCode);
 
+    Boolean existsByRegionCode(Long regionCode);
+
     List<Region> getAllRegion();
 
 }

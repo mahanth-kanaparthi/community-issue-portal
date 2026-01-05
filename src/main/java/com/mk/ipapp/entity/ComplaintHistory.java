@@ -2,15 +2,16 @@ package com.mk.ipapp.entity;
 
 import com.mk.ipapp.enums.ComplaintStatus;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "complaint_status_history")
+@Table(name = "complaint_history")
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
-@Getter
+@Getter @Setter
 public class ComplaintHistory {
 
     @Id
@@ -29,7 +30,7 @@ public class ComplaintHistory {
     private String remark;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = true)
+    @JoinColumn(name = "updated_by_id", nullable = true)
     private User updateBy;
 
     private LocalDateTime updatedAt = LocalDateTime.now();

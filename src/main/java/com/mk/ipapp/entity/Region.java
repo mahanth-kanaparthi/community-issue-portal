@@ -1,18 +1,17 @@
 package com.mk.ipapp.entity;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Table(name = "regions")
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
-@Getter
-@Setter
+@Getter @Setter
 public class Region {
 
     @Id

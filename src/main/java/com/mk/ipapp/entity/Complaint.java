@@ -3,15 +3,15 @@ package com.mk.ipapp.entity;
 import com.mk.ipapp.enums.ComplaintCategory;
 import com.mk.ipapp.enums.ComplaintStatus;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Table(name = "complaints")
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 @Getter @Setter
 public class Complaint {
@@ -53,7 +53,7 @@ public class Complaint {
     private String remark = "complaint created";
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = true)
+    @JoinColumn(name = "updated_by_id", nullable = true)
     private User updatedBy;
 
     private LocalDateTime createdAt = LocalDateTime.now();

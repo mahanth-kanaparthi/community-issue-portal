@@ -1,15 +1,17 @@
 package com.mk.ipapp.entity;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "attachment")
+@Table(name = "attachments")
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 @Getter
+@Setter
 public class Attachment {
 
     @Id

@@ -9,29 +9,30 @@ import jdk.jfr.Category;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
 
-    Optional<Complaint> findByComplaintId(Long complaintId);
 
     Optional<Complaint> findByComplaintCode(String complaintCode);
 
-    List<Complaint> findByUser(User citizen);
+    List<Complaint> findByUser(User complaintBy);
 
-    Page<Complaint> findByUserAndFilters(User user, List<ComplaintCategory> categories,
+    Page<Complaint> findByUserAndFilters(User complaintBy, List<ComplaintCategory> categories,
                                          List<ComplaintStatus> statuses,Pageable pageable);
 
-    Page<Complaint> findByUserAndStatus(User user, ComplaintStatus status, Pageable pageable);
+    Page<Complaint> findByUserAndStatus(User complaintBy, ComplaintStatus status, Pageable pageable);
 
-    Page<Complaint> findByUser(User user, Pageable pageable);
+    Page<Complaint> findByUser(User complaintBy, Pageable pageable);
 
     List<Complaint> findByRegion(Region region);
 
     List<Complaint> findByRegionAndStatus(Region region, ComplaintStatus status);
 
-    List<Complaint> findByAssignedOfficer(User officer);
+    List<Complaint> findByAssignedOfficer(User assignedOfficer);
 
 }

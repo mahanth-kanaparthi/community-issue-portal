@@ -53,7 +53,7 @@ public class ComplaintServiceImpl implements ComplaintService {
         Role role = Role.valueOf(user.getRole());
 
         Complaint complaint = Complaint.builder()
-                .complaintCode(generateRefNumber(role))
+                .complaintCode(generateComplaintCode(role))
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .category(request.getCategory())
@@ -89,9 +89,9 @@ public class ComplaintServiceImpl implements ComplaintService {
     }
 
     @Override
-    public ComplaintDetail getComplaintDetailForUser(Long complaintId, UserSummary user) {
+    public ComplaintDetail getComplaintDetailForUser(Long id, UserSummary user) {
 
-        Complaint complaint = complaintRepository.findByComplaintId(complaintId).orElseThrow(
+        Complaint complaint = complaintRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("Complaint not found")
         );
 
@@ -125,8 +125,8 @@ public class ComplaintServiceImpl implements ComplaintService {
     }
 
     @Override
-    public ComplaintDetail getComplaintDetailForOfficer(Long complaintId, UserSummary officer) {
-        Complaint complaint = complaintRepository.findByComplaintId(complaintId).orElseThrow(
+    public ComplaintDetail getComplaintDetailForOfficer(Long id, UserSummary officer) {
+        Complaint complaint = complaintRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("Complaint not found")
         );
         if(!complaint.getAssignedOfficer().getId().equals(officer.getId())){
@@ -136,8 +136,8 @@ public class ComplaintServiceImpl implements ComplaintService {
     }
 
     @Override
-    public ComplaintDetail updateComplaintStatus(Long complaintId, UserSummary officer, ComplaintUpdateRequest request) {
-        Complaint complaint = complaintRepository.findByComplaintId(complaintId).orElseThrow(
+    public ComplaintDetail updateComplaintStatus(Long id, UserSummary officer, ComplaintUpdateRequest request) {
+        Complaint complaint = complaintRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("Complaint not found")
         );
         Region region = regionService.getByRegionCode(officer.getRegionCode());
@@ -153,9 +153,9 @@ public class ComplaintServiceImpl implements ComplaintService {
     }
 
     @Override
-    public ComplaintDetail assignComplaintToOfficer(Long complaintId) {
+    public ComplaintDetail assignComplaintToOfficer(Long id) {
 
-        Complaint complaint = complaintRepository.findByComplaintId(complaintId).orElseThrow(
+        Complaint complaint = complaintRepository.findById(id).orElseThrow(
                 ()-> new RuntimeException("Complaint Not found")
         );
 
@@ -177,7 +177,7 @@ public class ComplaintServiceImpl implements ComplaintService {
 
 
 
-    private String generateRefNumber(Role role){
+    private String generateComplaintCode(Role role){
 
         final String refNumbers = "0123456789";
         final Random random = new SecureRandom();

@@ -11,6 +11,7 @@ import com.mk.ipapp.repository.RegionRepository;
 import com.mk.ipapp.repository.UserRepository;
 import com.mk.ipapp.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -42,9 +43,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getCurrentUser() {
-        //String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        //return userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
-        return null;
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+
     }
 
     public UserSummary updateUser(Long userId, UserUpdateRequest request){
@@ -80,9 +81,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findByEmail(String email) {
+    public UserSummary findByEmail(String email) {
 
-        return userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+        User user =  userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+        return UserMapper.toUserSummary(user);
+    }
+
+    @Override
+    public Boolean userExistsByEmail(String email){
+        return userRepository.existsByEmail(email);
     }
 
     @Override
