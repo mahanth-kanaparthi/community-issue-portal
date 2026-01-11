@@ -7,10 +7,13 @@ import com.mk.ipapp.repository.RegionRepository;
 import com.mk.ipapp.service.RegionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@Transactional
 public class RegionServiceImpl implements RegionService {
 
 
@@ -30,11 +33,9 @@ public class RegionServiceImpl implements RegionService {
         Region region = Region.builder()
                 .name(request.getName())
                 .regionCode(request.getRegionCode())
+                .createdAt(java.time.LocalDateTime.now())
                 .build();
-        regionRepository.save(region);
-
-        return regionRepository.findByRegionCode(request.getRegionCode()).orElseThrow(
-                () -> new RuntimeException("Region not found"));
+        return regionRepository.save(region);
     }
 
     @Override
@@ -45,9 +46,7 @@ public class RegionServiceImpl implements RegionService {
         );
 
         region.setName(request.getName());
-        regionRepository.save(region);
-
-        return region;
+        return regionRepository.save(region);
     }
 
     @Override
@@ -57,11 +56,17 @@ public class RegionServiceImpl implements RegionService {
                 () -> new RuntimeException("Region not found")
         );
 
-        regionRepository.deleteById(region.getId());
+        // Check if users are assigned to this region before deleting
+        if (region.getUsers() != null && !region.getUsers().isEmpty()) {
+            throw new RuntimeException("Cannot delete region: Users are still assigned to it.");
+        }
+
+        regionRepository.delete(region);
 
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Region getByRegionCode(Long regionCode) {
 
         return regionRepository.findByRegionCode(regionCode).orElseThrow(

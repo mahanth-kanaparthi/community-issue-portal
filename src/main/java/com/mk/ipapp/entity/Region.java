@@ -2,6 +2,7 @@ package com.mk.ipapp.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,11 +22,12 @@ public class Region {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(name = "region_code", unique = true, nullable = false)
     private Long regionCode;
 
     @OneToMany(mappedBy = "region")
     private List<User> users; //optional back reference
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 }

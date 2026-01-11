@@ -13,6 +13,7 @@ public class ComplaintSummary {
     private String category;
     private String status;
     private String createdAt;
-    private String updatedBy;
+    private String updatedAt;
+    private String actionBy;
     private String remark;
 }

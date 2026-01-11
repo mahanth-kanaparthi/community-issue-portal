@@ -12,20 +12,21 @@ import com.mk.ipapp.repository.UserRepository;
 import com.mk.ipapp.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final RegionRepository regionRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, RegionRepository regionRepository){
-        this.userRepository = userRepository;
-        this.regionRepository = regionRepository;
-    }
 
     @Override
     public UserSummary registerUser(UserRegisterRequest request) {
@@ -35,6 +36,9 @@ public class UserServiceImpl implements UserService {
         Region region = regionRepository.findByRegionCode(request.getRegionCode()).orElseThrow(
                 () ->  new RuntimeException("Region not found")
         );
+        //encode the password: avoid saving plain text in db
+        request.setPassword(passwordEncoder.encode(request.getPassword()));
+
         User user = UserMapper.toUser(request, region);
 
         //saving user & returning user summary obj
@@ -42,6 +46,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public User getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
@@ -49,7 +54,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public UserSummary updateUser(Long userId, UserUpdateRequest request){
-        User user = userRepository.findById(request.getId()).orElseThrow(
+        User user = userRepository.findById(userId).orElseThrow(
                 () -> new RuntimeException("User not found!")
         );
 

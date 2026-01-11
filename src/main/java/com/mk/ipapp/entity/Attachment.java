@@ -2,6 +2,7 @@ package com.mk.ipapp.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -34,7 +35,8 @@ public class Attachment {
     @Column(name = "imagedata", columnDefinition = "LONGBLOB")
     private byte[] imageData;
 
-    private LocalDateTime uploadedAt = LocalDateTime.now();
+    @CreationTimestamp
+    private LocalDateTime uploadedAt;
 
 
 }

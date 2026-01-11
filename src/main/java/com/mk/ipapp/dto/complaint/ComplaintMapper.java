@@ -12,55 +12,33 @@ import com.mk.ipapp.service.ComplaintHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-@Component
 public class ComplaintMapper {
 
+    public static ComplaintDetail toComplaintDetail(Complaint complaint,
+                                                    List<ComplaintHistory> historyList, AttachmentDto attachment){
+        if(complaint == null) return null;
 
-    private final AttachmentService attachmentService;
-    private final ComplaintHistoryService historyService;
-
-    public ComplaintMapper(AttachmentService attachmentService, ComplaintHistoryService historyService){
-        this.attachmentService = attachmentService;
-        this.historyService = historyService;
-    }
-    public ComplaintDetail toComplaintDetail(Complaint complaint){
-        List<ComplaintHistory> historyList = historyService.getComplaintOrderByUpdatedAtAsc(complaint);
-
-
-        ComplaintDetail detail = ComplaintDetail.builder()
+        return ComplaintDetail.builder()
                 .id(complaint.getId())
                 .complaintCode(complaint.getComplaintCode())
                 .title(complaint.getTitle())
-                .description((complaint.getDescription()))
-                .category(complaint.getCategory().toString())
-                .status(complaint.getStatus().toString())
-                .complaintBy(complaint.getComplaintBy().getFullName())
-                .assignedOfficerName(complaint.getAssignedOfficer().getFullName())
-                .createdAt(complaint.getCreatedAt().toString())
-                .updatedAt(complaint.getUpdateAt().toString())
+                .description(complaint.getDescription())
+                .category(complaint.getCategory().name())
+                .status(complaint.getStatus().name())
+                .regionName(complaint.getRegion() != null ? complaint.getRegion().getName() : null)
+                .complaintBy(complaint.getComplaintBy() != null ? complaint.getComplaintBy().getFullName() : "Unknown")
+                .assignedOfficerName(complaint.getAssignedOfficer() != null ? complaint.getAssignedOfficer().getFullName() : "Unassigned")
+                .actionBy(complaint.getComplaintBy() != null ? complaint.getComplaintBy().getFullName() : "Unknown")
+                .createdAt(complaint.getCreatedAt() != null ? complaint.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : null)
+                .updatedAt(complaint.getUpdatedAt() != null ? complaint.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")):null)
+                .remark(complaint.getRemark())
+                .history(mapHistory(historyList))
+                .attachment(attachment)
                 .build();
 
-        detail.setHistory(
-                historyList.stream()
-                        .map(history -> {
-                            return ComplaintHistoryDto.builder()
-                                    .status(history.getStatus().toString())
-                            .remark(history.getRemark())
-                            .updatedAt(history.getUpdatedAt().toString())
-                            .updateBy(
-                                    history.getUpdateBy() != null ? history.getUpdateBy().getFullName() : null
-                            ).build();
-                        }).toList()
-        );
-
-
-        detail.setAttachment(
-                AttachmentMapper.toAttachmentDto(attachmentService.getByComplaint(complaint))
-        );
-
-        return detail;
     }
 
     public static ComplaintSummary toComplaintSummary(Complaint complaint){
@@ -71,9 +49,21 @@ public class ComplaintMapper {
                 .title(complaint.getTitle())
                 .category(complaint.getCategory().toString())
                 .status(complaint.getStatus().toString())
-                .createdAt(complaint.getCreatedAt().toString())
+                .createdAt(complaint.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
+                .updatedAt(complaint.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
                 .remark(complaint.getRemark())
-                .updatedBy(complaint.getUpdatedBy() != null ? complaint.getUpdatedBy().getFullName(): null)
+                .actionBy(complaint.getActionBy() != null ? complaint.getActionBy().getFullName(): null)
                 .build();
+    }
+    private static List<ComplaintHistoryDto> mapHistory(List<ComplaintHistory> historyList){
+        if(historyList == null) return List.of();
+        return historyList.stream()
+                .map(history -> ComplaintHistoryDto.builder()
+                        .status(history.getStatus().name())
+                        .remark(history.getRemark())
+                        .updatedAt(history.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
+                        .updateBy(history.getActionBy() != null ? history.getActionBy().getFullName() : "System")
+                        .build())
+                .toList();
     }
 }

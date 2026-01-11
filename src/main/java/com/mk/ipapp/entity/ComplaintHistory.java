@@ -3,6 +3,7 @@ package com.mk.ipapp.entity;
 import com.mk.ipapp.enums.ComplaintStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -19,7 +20,7 @@ public class ComplaintHistory {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "complain_id", nullable = false)
+    @JoinColumn(name = "complaint_id", nullable = false)
     private Complaint complaint;
 
     @Enumerated(EnumType.STRING)
@@ -30,8 +31,9 @@ public class ComplaintHistory {
     private String remark;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "updated_by_id", nullable = true)
-    private User updateBy;
+    @JoinColumn(name = "action_by_id", nullable = false)
+    private User actionBy;
 
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 }

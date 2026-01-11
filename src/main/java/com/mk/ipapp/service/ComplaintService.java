@@ -13,7 +13,7 @@ import java.util.List;
 
 public interface ComplaintService {
 
-    ComplaintDetail CreateComplaint(ComplaintCreateRequest request, UserSummary citizen);
+    ComplaintDetail createComplaint(ComplaintCreateRequest request, UserSummary citizen);
 
     Page<ComplaintSummary> getComplaintsForUser(User user, String status, Pageable pageable);
 

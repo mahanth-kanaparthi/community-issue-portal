@@ -1,14 +1,18 @@
 package com.mk.ipapp.entity;
 
+import com.mk.ipapp.entity.listener.ComplaintListener;
 import com.mk.ipapp.enums.ComplaintCategory;
 import com.mk.ipapp.enums.ComplaintStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@EntityListeners(ComplaintListener.class)
 @Table(name = "complaints")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -53,11 +57,13 @@ public class Complaint {
     private String remark = "complaint created";
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "updated_by_id", nullable = true)
-    private User updatedBy;
+    @JoinColumn(name = "action_by_id", nullable = true)
+    private User actionBy;
 
+    @CreationTimestamp
     private LocalDateTime createdAt = LocalDateTime.now();
-    private LocalDateTime updateAt = LocalDateTime.now();
+    @UpdateTimestamp
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
 
 

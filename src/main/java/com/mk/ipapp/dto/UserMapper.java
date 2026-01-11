@@ -11,8 +11,8 @@ public class UserMapper {
 //    UserRepository userRepository;
 //    RegionRepository regionRepository;
 
-    //returns a new user object without setting a region
-    public User requestToUser(UserRegisterRequest request, Region region){
+
+    public static User toUser(UserRegisterRequest request, Region region){
         return User.builder()
                 .fullName(request.getFullName())
                 .email(request.getEmail())
@@ -20,6 +20,7 @@ public class UserMapper {
                 .phone(request.getPhone())
                 .password(request.getPassword())
                 .region(region)
+                .active(true) // true for newly created users
                 .build();
     }
 
@@ -35,23 +36,23 @@ public class UserMapper {
                 .build();
     }
 
-    //returns a new user object without setting a region
-    public static User toUser(UserRegisterRequest request, Region region){
-        return User.builder()
-                .fullName(request.getFullName())
-                .email(request.getEmail())
-                .role(request.getP_user() ? Role.ROLE_P_USER : Role.ROLE_USER)
-                .phone(request.getPhone())
-                .password(request.getPassword())
-                .region(region)
-                .build();
-    }
+
+//    public static User toUser(UserRegisterRequest request, Region region){
+//        return User.builder()
+//                .fullName(request.getFullName())
+//                .email(request.getEmail())
+//                .role(request.getP_user() ? Role.ROLE_P_USER : Role.ROLE_USER)
+//                .phone(request.getPhone())
+//                .password(request.getPassword())
+//                .region(region)
+//                .build();
+//    }
     public static User toUser(UserSummary userSummary, Region region){
-        Role role = Role.valueOf(userSummary.getRole());
         return User.builder()
+                .id(userSummary.getId())
                 .fullName(userSummary.getFullName())
                 .email(userSummary.getEmail())
-                .role(role)
+                .role(Role.valueOf(userSummary.getRole()))
                 .phone(userSummary.getPhone())
                 .active(userSummary.getActive())
                 .region(region)
@@ -60,13 +61,16 @@ public class UserMapper {
 
     // returns a UserSummary object without userId and regionId
     public static UserSummary toUserSummary(User user){
+        if(user == null) return null;
         return UserSummary.builder()
                 .id(user.getId())
                 .fullName(user.getFullName())
                 .email(user.getEmail())
                 .phone(user.getPhone())
-                .role(user.getRole().toString())
-                .regionCode(user.getRegion().getRegionCode())
+                .role(user.getRole() != null ? user.getRole().name() : null)
+                .active(user.getActive())
+                .regionCode(user.getRegion() != null ? user.getRegion().getRegionCode() : null)
+                //null safe navigation for a lazy-loaded region
                 .build();
     }
 

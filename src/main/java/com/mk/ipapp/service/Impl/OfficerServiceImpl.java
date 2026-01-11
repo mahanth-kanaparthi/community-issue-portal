@@ -10,23 +10,17 @@ import com.mk.ipapp.enums.Role;
 import com.mk.ipapp.repository.RegionRepository;
 import com.mk.ipapp.repository.UserRepository;
 import com.mk.ipapp.service.OfficerService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class OfficerServiceImpl implements OfficerService {
 
-    UserRepository userRepository;
-    RegionRepository regionRepository;
-    UserMapper userMapper;
-
-    public OfficerServiceImpl(UserRepository userRepository, RegionRepository regionRepository,
-                           UserMapper userUserMapper){
-        this.userRepository = userRepository;
-        this.regionRepository = regionRepository;
-        this.userMapper = userUserMapper;
-    }
+    private final UserRepository userRepository;
+    private final RegionRepository regionRepository;
 
 
     @Override
@@ -38,9 +32,9 @@ public class OfficerServiceImpl implements OfficerService {
         Region region = regionRepository.findByRegionCode(request.getRegionCode()).orElseThrow(
                 () ->  new RuntimeException("Region not found")
         );
-        User user = userMapper.requestToUser(request, region);
+        User user = UserMapper.toUser(request, region);
 
-        return userMapper.userToUserSummary(userRepository.save(user));
+        return UserMapper.toUserSummary(userRepository.save(user));
 
     }
 
@@ -68,7 +62,7 @@ public class OfficerServiceImpl implements OfficerService {
             officer.setActive(request.getActive());
         }
 
-        return userMapper.userToUserSummary(userRepository.save(officer));
+        return UserMapper.toUserSummary(userRepository.save(officer));
     }
 
     @Override
@@ -87,7 +81,7 @@ public class OfficerServiceImpl implements OfficerService {
         List<User> officersInRegion = userRepository.findByRegionAndRole(region, Role.ROLE_OFFICER);
 
         return officersInRegion.stream()
-                .map(officer -> userMapper.userToUserSummary(officer))
+                .map(UserMapper::toUserSummary)
                 .toList();
     }
 }

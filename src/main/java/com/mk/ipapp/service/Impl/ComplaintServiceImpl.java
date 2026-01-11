@@ -3,7 +3,10 @@ package com.mk.ipapp.service.Impl;
 import com.mk.ipapp.dto.UserMapper;
 import com.mk.ipapp.dto.UserSummary;
 import com.mk.ipapp.dto.complaint.*;
+import com.mk.ipapp.dto.complaint.attachment.AttachmentDto;
+import com.mk.ipapp.dto.complaint.attachment.AttachmentMapper;
 import com.mk.ipapp.entity.Complaint;
+import com.mk.ipapp.entity.ComplaintHistory;
 import com.mk.ipapp.entity.Region;
 import com.mk.ipapp.entity.User;
 import com.mk.ipapp.enums.ComplaintCategory;
@@ -11,9 +14,11 @@ import com.mk.ipapp.enums.ComplaintStatus;
 import com.mk.ipapp.enums.Role;
 import com.mk.ipapp.repository.*;
 import com.mk.ipapp.service.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -21,6 +26,8 @@ import java.util.List;
 import java.util.Random;
 
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class ComplaintServiceImpl implements ComplaintService {
 
 
@@ -29,24 +36,10 @@ public class ComplaintServiceImpl implements ComplaintService {
     private final UserService userService;
     private final RegionService regionService;
     private final ComplaintHistoryService historyService;
-    private final ComplaintMapper complaintMapper;
 
-    public ComplaintServiceImpl(ComplaintRepository complaintRepository,
-                                RegionService regionService,
-                                UserService userService,
-                                AttachmentService attachmentService,
-                                ComplaintHistoryService historyService,
-    ComplaintMapper complaintMapper) {
-        this.complaintRepository = complaintRepository;
-        this.regionService = regionService;
-        this.userService = userService;
-        this.attachmentService = attachmentService;
-        this.historyService = historyService;
-        this.complaintMapper = complaintMapper;
-    }
 
     @Override
-    public ComplaintDetail CreateComplaint(ComplaintCreateRequest request, UserSummary user) {
+    public ComplaintDetail createComplaint(ComplaintCreateRequest request, UserSummary user) {
 
         Region region = regionService.getByRegionCode(user.getRegionCode());
 
@@ -61,15 +54,19 @@ public class ComplaintServiceImpl implements ComplaintService {
                 .complaintBy(UserMapper.toUser(user,region))
                 .region(region)
                 .createdAt(request.getCreatedAt())
-                .updateAt(request.getUpdatedAt())
+                .updatedAt(request.getUpdatedAt())
                 .latitude(request.getLatitude())
                 .longitude(request.getLongitude())
                 .build();
 
         Complaint saved = complaintRepository.save(complaint);
 
+        // saves history automatically by jpa listener
 
-        return complaintMapper.toComplaintDetail(saved);
+        List<ComplaintHistory> historyList = historyService.getComplaintOrderByUpdatedAtAsc(saved);
+        AttachmentDto attachment = AttachmentMapper.toAttachmentDto(attachmentService.getByComplaint(saved));
+
+        return ComplaintMapper.toComplaintDetail(saved,historyList, attachment);
     }
 
     @Override
@@ -79,9 +76,9 @@ public class ComplaintServiceImpl implements ComplaintService {
 
         if(status != null){
             ComplaintStatus s = ComplaintStatus.valueOf(status);
-            page = complaintRepository.findByUserAndStatus(user, s, pageable);
+            page = complaintRepository.findByComplaintByAndStatus(user, s, pageable);
         }else{
-            page = complaintRepository.findByUser(user, pageable);
+            page = complaintRepository.findByComplaintBy(user, pageable);
         }
 
         return page.map(ComplaintMapper::toComplaintSummary);
@@ -99,7 +96,9 @@ public class ComplaintServiceImpl implements ComplaintService {
             throw new RuntimeException("Access Denied");
         }
 
-        return complaintMapper.toComplaintDetail(complaint);
+        List<ComplaintHistory> historyList = historyService.getComplaintOrderByUpdatedAtAsc(complaint);
+        AttachmentDto attachment = AttachmentMapper.toAttachmentDto(attachmentService.getByComplaint(complaint));
+        return ComplaintMapper.toComplaintDetail(complaint,historyList,attachment);
 
     }
 
@@ -109,17 +108,23 @@ public class ComplaintServiceImpl implements ComplaintService {
         Complaint complaint = complaintRepository.findByComplaintCode(complaintCode).orElseThrow(
                 () -> new RuntimeException("Complaint not found")
         );
-        return complaintMapper.toComplaintDetail(complaint);
+        List<ComplaintHistory> historyList = historyService.getComplaintOrderByUpdatedAtAsc(complaint);
+        AttachmentDto attachment = AttachmentMapper.toAttachmentDto(attachmentService.getByComplaint(complaint));
+        return ComplaintMapper.toComplaintDetail(complaint,historyList, attachment);
     }
 
     @Override
     public Page<ComplaintSummary> getComplaintsForOfficer(User officer, List<String> categories,
                                                           List<String> statuses, Pageable pageable) {
 
-        List<ComplaintCategory> cc = categories.stream().map(ComplaintCategory::valueOf).toList();
-        List<ComplaintStatus> cs = statuses.stream().map(ComplaintStatus::valueOf).toList();
+        //converting strings to enums and null checks
+        List<ComplaintCategory> cc = (categories == null || categories.isEmpty())
+        ? null : categories.stream().map(ComplaintCategory::valueOf).toList();
 
-        Page<Complaint> page = complaintRepository.findByUserAndFilters(officer, cc,cs, pageable);
+        List<ComplaintStatus> cs = (statuses == null || statuses.isEmpty())
+        ? null : statuses.stream().map(ComplaintStatus::valueOf).toList();
+
+        Page<Complaint> page = complaintRepository.findByOfficerAndFilters(officer, cc,cs, pageable);
 
         return page.map(ComplaintMapper::toComplaintSummary);
     }
@@ -132,7 +137,9 @@ public class ComplaintServiceImpl implements ComplaintService {
         if(!complaint.getAssignedOfficer().getId().equals(officer.getId())){
             throw new RuntimeException("Access Denied");
         }
-        return complaintMapper.toComplaintDetail(complaint);
+        List<ComplaintHistory> historyList = historyService.getComplaintOrderByUpdatedAtAsc(complaint);
+        AttachmentDto attachment = AttachmentMapper.toAttachmentDto(attachmentService.getByComplaint(complaint));
+        return ComplaintMapper.toComplaintDetail(complaint,historyList, attachment);
     }
 
     @Override
@@ -144,12 +151,15 @@ public class ComplaintServiceImpl implements ComplaintService {
 
         complaint.setStatus(ComplaintStatus.valueOf(request.getStatus()));
         complaint.setRemark(request.getRemark());
-        complaint.setUpdateAt(LocalDateTime.now());
-        complaint.setUpdatedBy(UserMapper.toUser(officer, region));
+        complaint.setUpdatedAt(LocalDateTime.now());
+        complaint.setActionBy(UserMapper.toUser(officer, region));
 
         Complaint saved = complaintRepository.save(complaint);
+        // saves history automatically by jpa listener
 
-        return complaintMapper.toComplaintDetail(saved);
+        List<ComplaintHistory> historyList = historyService.getComplaintOrderByUpdatedAtAsc(saved);
+        AttachmentDto attachment = AttachmentMapper.toAttachmentDto(attachmentService.getByComplaint(saved));
+        return ComplaintMapper.toComplaintDetail(saved,historyList, attachment);
     }
 
     @Override
@@ -161,12 +171,19 @@ public class ComplaintServiceImpl implements ComplaintService {
 
         List<User> officers = userService.getUsersByRegionAndRole(complaint.getRegion(), Role.ROLE_OFFICER);
 
+        if(officers.isEmpty()){
+            throw new RuntimeException("No officers available in this region to assign");
+        }
         Random random = new Random();
         int n = random.nextInt(officers.size());
         complaint.setAssignedOfficer(officers.get(n));
         Complaint saved = complaintRepository.save(complaint);
 
-        return complaintMapper.toComplaintDetail(saved);
+        // saves history automatically by jpa listener
+
+        List<ComplaintHistory> historyList = historyService.getComplaintOrderByUpdatedAtAsc(saved);
+        AttachmentDto attachment = AttachmentMapper.toAttachmentDto(attachmentService.getByComplaint(saved));
+        return ComplaintMapper.toComplaintDetail(saved,historyList, attachment);
     }
 
     @Override
@@ -191,6 +208,6 @@ public class ComplaintServiceImpl implements ComplaintService {
             case Role.ROLE_OFFICER -> "CMPO";
             case Role.ROLE_P_USER -> "CMPP";
             case Role.ROLE_USER -> "CMPC";
-        } + builderString.toString();
+        } + builderString;
     }
 }

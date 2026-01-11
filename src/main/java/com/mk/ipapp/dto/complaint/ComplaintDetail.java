@@ -20,7 +20,7 @@ public class ComplaintDetail {
     private String regionName;
     private String complaintBy; // hidden in public
     private String assignedOfficerName;
-    private String updateBy;
+    private String actionBy;
     private String createdAt;
     private String updatedAt;
     private String remark;

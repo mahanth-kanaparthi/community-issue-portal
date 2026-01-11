@@ -9,6 +9,8 @@ import jdk.jfr.Category;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,14 +22,31 @@ public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
 
     Optional<Complaint> findByComplaintCode(String complaintCode);
 
-    List<Complaint> findByUser(User complaintBy);
+    List<Complaint> findByComplaintBy(User complaintBy);
 
-    Page<Complaint> findByUserAndFilters(User complaintBy, List<ComplaintCategory> categories,
-                                         List<ComplaintStatus> statuses,Pageable pageable);
+    //custom queries
+    @Query("SELECT c FROM Complaint c WHERE c.complaintBy = :complaintBy "+
+    "AND (:categories IS NULL OR c.category IN :categories) "+
+    "AND (:statuses IS NULL OR c.status IN :statuses)")
+    Page<Complaint> findByComplaintByAndFilters(
+            @Param("complaintBy") User complaintBy,
+            @Param("categories") List<ComplaintCategory> categories,
+            @Param("statuses") List<ComplaintStatus> statuses,
+            Pageable pageable);
 
-    Page<Complaint> findByUserAndStatus(User complaintBy, ComplaintStatus status, Pageable pageable);
+    @Query("SELECT c FROM Complaint c WHERE c.assignedOfficer = :officer "+
+    "AND (:categories IS NULL OR c.category IN :categories) "+
+    "AND (:statuses IS NULL OR c.status IN :statuses)")
+    Page<Complaint> findByOfficerAndFilters(
+            @Param("officer") User officer,
+            @Param("categories") List<ComplaintCategory> categories,
+            @Param("statuses") List<ComplaintStatus> statuses,
+            Pageable pageable
+    );
 
-    Page<Complaint> findByUser(User complaintBy, Pageable pageable);
+    Page<Complaint> findByComplaintByAndStatus(User complaintBy, ComplaintStatus status, Pageable pageable);
+
+    Page<Complaint> findByComplaintBy(User complaintBy, Pageable pageable);
 
     List<Complaint> findByRegion(Region region);
 
