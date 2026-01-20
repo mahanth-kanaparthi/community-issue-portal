@@ -10,6 +10,8 @@ import com.mk.ipapp.enums.Role;
 import com.mk.ipapp.repository.RegionRepository;
 import com.mk.ipapp.repository.UserRepository;
 import com.mk.ipapp.service.UserService;
+
+import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -47,13 +49,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public User getCurrentUser() {
+    public UserSummary getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+        return UserMapper.toUserSummary(userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found")));
 
     }
 
-    public UserSummary updateUser(Long userId, UserUpdateRequest request){
+    public UserSummary updateUser(@Nonnull Long userId, UserUpdateRequest request){
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new RuntimeException("User not found!")
         );

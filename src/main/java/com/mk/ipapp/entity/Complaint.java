@@ -39,6 +39,7 @@ public class Complaint {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private ComplaintStatus status = ComplaintStatus.PENDING;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -54,6 +55,7 @@ public class Complaint {
     private Region region;
 
     @Column(nullable = true, length = 200)
+    @Builder.Default
     private String remark = "complaint created";
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -61,8 +63,10 @@ public class Complaint {
     private User actionBy;
 
     @CreationTimestamp
+    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
     @UpdateTimestamp
+    @Builder.Default
     private LocalDateTime updatedAt = LocalDateTime.now();
 
 

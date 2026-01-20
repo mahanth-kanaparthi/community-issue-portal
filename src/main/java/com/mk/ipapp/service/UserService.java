@@ -13,7 +13,7 @@ public interface UserService {
 
     UserSummary registerUser(UserRegisterRequest request);
 
-    User getCurrentUser(); // from security context
+    UserSummary getCurrentUser(); // from security context
 
     UserSummary updateUser(Long userId, UserUpdateRequest request);
 

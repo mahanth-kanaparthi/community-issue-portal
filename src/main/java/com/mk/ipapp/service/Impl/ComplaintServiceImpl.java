@@ -14,6 +14,8 @@ import com.mk.ipapp.enums.ComplaintStatus;
 import com.mk.ipapp.enums.Role;
 import com.mk.ipapp.repository.*;
 import com.mk.ipapp.service.*;
+
+import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -70,15 +72,17 @@ public class ComplaintServiceImpl implements ComplaintService {
     }
 
     @Override
-    public Page<ComplaintSummary> getComplaintsForUser(User user, String status, Pageable pageable) {
+    public Page<ComplaintSummary> getComplaintsForUser(UserSummary user, String status, Pageable pageable) {
 
+        Region region = regionService.getByRegionCode(user.getRegionCode());
+        User currentUser = UserMapper.toUser(user, region);
         Page<Complaint> page;
 
         if(status != null){
             ComplaintStatus s = ComplaintStatus.valueOf(status);
-            page = complaintRepository.findByComplaintByAndStatus(user, s, pageable);
+            page = complaintRepository.findByComplaintByAndStatus(currentUser, s, pageable);
         }else{
-            page = complaintRepository.findByComplaintBy(user, pageable);
+            page = complaintRepository.findByComplaintBy(currentUser, pageable);
         }
 
         return page.map(ComplaintMapper::toComplaintSummary);
@@ -113,6 +117,12 @@ public class ComplaintServiceImpl implements ComplaintService {
         return ComplaintMapper.toComplaintDetail(complaint,historyList, attachment);
     }
 
+    //TODO: complete updateComplaintDetails Method
+    @Override
+    public ComplaintDetail updateComplaintDetails(Long id, UserSummary user, ComplaintUpdateRequest request){
+        return null;
+    }
+
     @Override
     public Page<ComplaintSummary> getComplaintsForOfficer(User officer, List<String> categories,
                                                           List<String> statuses, Pageable pageable) {
@@ -130,7 +140,7 @@ public class ComplaintServiceImpl implements ComplaintService {
     }
 
     @Override
-    public ComplaintDetail getComplaintDetailForOfficer(Long id, UserSummary officer) {
+    public ComplaintDetail getComplaintDetailForOfficer(@Nonnull Long id, UserSummary officer) {
         Complaint complaint = complaintRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("Complaint not found")
         );
