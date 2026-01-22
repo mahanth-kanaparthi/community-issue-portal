@@ -1,5 +1,7 @@
 package com.mk.ipapp.controller;
 
+import com.mk.ipapp.dto.UserUpdateRequest;
+import com.mk.ipapp.dto.complaint.*;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +17,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mk.ipapp.dto.UserSummary;
-import com.mk.ipapp.dto.complaint.ComplaintCreateRequest;
-import com.mk.ipapp.dto.complaint.ComplaintDetail;
-import com.mk.ipapp.dto.complaint.ComplaintSummary;
-import com.mk.ipapp.dto.complaint.ComplaintUpdateRequest;
 import com.mk.ipapp.service.ComplaintService;
 import com.mk.ipapp.service.UserService;
 
@@ -63,11 +61,16 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ComplaintDetail> updateComplaintDetails( @PathVariable Long id, 
-        @RequestBody ComplaintUpdateRequest request){
+        @RequestBody ComplaintDetailsUpdateRequest request){
 
             UserSummary currentUser = userService.getCurrentUser();
 
             return ResponseEntity.ok(complaintService.updateComplaintDetails(id, currentUser, request));
-        }
-         
+    }
+
+    @PostMapping("/updatedetails")
+    public ResponseEntity<UserSummary> updateUserDetails(@RequestBody UserUpdateRequest request){
+        UserSummary currentUser = userService.getCurrentUser();
+        return ResponseEntity.ok(userService.updateUser(currentUser.getId(), request));
+    }
 }

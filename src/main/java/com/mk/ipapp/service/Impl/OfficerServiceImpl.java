@@ -39,8 +39,8 @@ public class OfficerServiceImpl implements OfficerService {
     }
 
     @Override
-    public UserSummary updateOfficer(OfficerUpdateRequest request) {
-        User officer = userRepository.findById(request.getId()).orElseThrow(
+    public UserSummary updateOfficer(Long id, OfficerUpdateRequest request) {
+        User officer = userRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("Officer not found!")
         );
 
@@ -63,6 +63,14 @@ public class OfficerServiceImpl implements OfficerService {
         }
 
         return UserMapper.toUserSummary(userRepository.save(officer));
+    }
+
+    @Override
+    public void activateOfficer(Long officerId) {
+        User officer = userRepository.findById(officerId)
+                .orElseThrow(() -> new RuntimeException("Officer not found"));
+        officer.setActive(true);
+        userRepository.save(officer);
     }
 
     @Override

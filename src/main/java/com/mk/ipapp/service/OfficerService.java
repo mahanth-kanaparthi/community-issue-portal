@@ -10,8 +10,9 @@ public interface OfficerService {
 
     UserSummary createOfficer(OfficerCreateRequest request);
 
-    UserSummary updateOfficer(OfficerUpdateRequest request);
+    UserSummary updateOfficer(Long id, OfficerUpdateRequest request);
 
+    void activateOfficer(Long id);
     void deactivateOfficer(Long officerId);
 
     List<UserSummary> listOfficers(Long regionId); // nullable regionId: all officers

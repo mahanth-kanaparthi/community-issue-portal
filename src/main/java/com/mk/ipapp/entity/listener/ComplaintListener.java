@@ -6,7 +6,9 @@ import com.mk.ipapp.repository.ComplaintHistoryRepository;
 import jakarta.persistence.PostPersist;
 import jakarta.persistence.PostUpdate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ComplaintListener {
 
     private static ComplaintHistoryRepository repository;

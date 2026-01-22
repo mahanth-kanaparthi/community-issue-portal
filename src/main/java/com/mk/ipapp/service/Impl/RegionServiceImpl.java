@@ -39,9 +39,9 @@ public class RegionServiceImpl implements RegionService {
     }
 
     @Override
-    public Region updateRegion(RegionUpdateRequest request) {
+    public Region updateRegion(Long id, RegionUpdateRequest request) {
 
-        Region region = regionRepository.findByRegionCode(request.getRegionCode()).orElseThrow(
+        Region region = regionRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("Region not found")
         );
 
@@ -81,7 +81,7 @@ public class RegionServiceImpl implements RegionService {
     }
 
     @Override
-    public List<Region> getAllRegion() {
+    public List<Region> getAllRegions() {
         return regionRepository.findAll();
     }
 }

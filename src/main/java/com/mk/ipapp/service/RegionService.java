@@ -10,7 +10,7 @@ public interface RegionService {
 
     Region createRegion(RegionCreateRequest request);
 
-    Region updateRegion(RegionUpdateRequest request);
+    Region updateRegion(Long id, RegionUpdateRequest request);
 
     void deleteRegion(Long regionId);
 
@@ -18,6 +18,6 @@ public interface RegionService {
 
     Boolean existsByRegionCode(Long regionCode);
 
-    List<Region> getAllRegion();
+    List<Region> getAllRegions();
 
 }

@@ -26,9 +26,10 @@ public class Attachment {
     @Column(nullable = false)
     private String fileName;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String fileUrl; // local path or cloud url
 
+    @Column(nullable = true)
     private String filetype; // image or png etc.
 
     @Lob

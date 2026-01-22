@@ -21,6 +21,7 @@ public interface UserService {
 
     UserSummary findByEmail(String email);
 
+
     Boolean userExistsByEmail(String email);
 
     List<User> getUsersByRegionAndRole(Region region, Role role);

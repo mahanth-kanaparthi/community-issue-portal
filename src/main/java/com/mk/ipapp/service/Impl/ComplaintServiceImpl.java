@@ -117,14 +117,34 @@ public class ComplaintServiceImpl implements ComplaintService {
         return ComplaintMapper.toComplaintDetail(complaint,historyList, attachment);
     }
 
-    //TODO: complete updateComplaintDetails Method
+    //TOD0: complete updateComplaintDetails Method -- done
     @Override
-    public ComplaintDetail updateComplaintDetails(Long id, UserSummary user, ComplaintUpdateRequest request){
-        return null;
+    public ComplaintDetail updateComplaintDetails(Long id, UserSummary user, ComplaintDetailsUpdateRequest request){
+
+        Complaint complaint = complaintRepository.findById(id).orElseThrow(
+                () -> new RuntimeException("Complaint not found")
+        );
+
+        complaint.setTitle(request.getTitle());
+        complaint.setDescription(request.getDescription());
+        complaint.setCategory(ComplaintCategory.valueOf(request.getCategory()));
+        complaint.setStatus(ComplaintStatus.valueOf(request.getStatus()));
+        complaint.setRegion(regionService.getByRegionCode(user.getRegionCode()));
+        complaint.setRemark(request.getRemark());
+        var attachment = AttachmentMapper.toAttachment(request.getAttachment());
+        attachment.setComplaint(complaint);
+        var savedAttachment = attachmentService.saveAttachment(attachment);
+        complaint.setAttachments(List.of(savedAttachment));
+
+        var saved = complaintRepository.save(complaint);
+
+        List<ComplaintHistory> historyList = historyService.getComplaintOrderByUpdatedAtAsc(saved);
+        AttachmentDto attachmentDto = AttachmentMapper.toAttachmentDto(attachmentService.getByComplaint(saved));
+        return ComplaintMapper.toComplaintDetail(saved,historyList, attachmentDto);
     }
 
     @Override
-    public Page<ComplaintSummary> getComplaintsForOfficer(User officer, List<String> categories,
+    public Page<ComplaintSummary> getComplaintsForOfficer(UserSummary officer, List<String> categories,
                                                           List<String> statuses, Pageable pageable) {
 
         //converting strings to enums and null checks
@@ -134,7 +154,9 @@ public class ComplaintServiceImpl implements ComplaintService {
         List<ComplaintStatus> cs = (statuses == null || statuses.isEmpty())
         ? null : statuses.stream().map(ComplaintStatus::valueOf).toList();
 
-        Page<Complaint> page = complaintRepository.findByOfficerAndFilters(officer, cc,cs, pageable);
+        User currentOfficer = userService.findById(officer.getId());
+
+        Page<Complaint> page = complaintRepository.findByOfficerAndFilters(currentOfficer, cc,cs, pageable);
 
         return page.map(ComplaintMapper::toComplaintSummary);
     }
@@ -173,7 +195,7 @@ public class ComplaintServiceImpl implements ComplaintService {
     }
 
     @Override
-    public ComplaintDetail assignComplaintToOfficer(Long id) {
+    public ComplaintDetail assignComplaintToOfficer(Long id) { // by system
 
         Complaint complaint = complaintRepository.findById(id).orElseThrow(
                 ()-> new RuntimeException("Complaint Not found")
@@ -197,7 +219,23 @@ public class ComplaintServiceImpl implements ComplaintService {
     }
 
     @Override
-    public Page<ComplaintSummary> getComplaintForAdmin(Long regionId, Long officerId, List<String> status, String fromDate, String toDate, Pageable pageable) {
+    public ComplaintDetail assignComplaintToOfficer(Long complaintId, Long officerId, UserSummary actionBy){
+        Complaint complaint = complaintRepository.findById(complaintId).orElseThrow(
+                () -> new RuntimeException("Complaint not found")
+        );
+        User officer = userService.findById(officerId);
+        complaint.setAssignedOfficer(officer);
+        complaint.setActionBy(UserMapper.toUser(actionBy, regionService.getByRegionCode(actionBy.getRegionCode())));
+        Complaint saved = complaintRepository.save(complaint);
+
+        // saves history automatically by jpa listener
+
+        List<ComplaintHistory> historyList = historyService.getComplaintOrderByUpdatedAtAsc(saved);
+        AttachmentDto attachment = AttachmentMapper.toAttachmentDto(attachmentService.getByComplaint(saved));
+        return ComplaintMapper.toComplaintDetail(saved,historyList, attachment);
+    }
+    @Override
+    public Page<ComplaintSummary> getComplaintsForAdmin(Long regionId, Long officerId, List<String> status, String fromDate, String toDate, Pageable pageable) {
         return null;
     }
 

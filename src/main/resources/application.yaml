@@ -10,7 +10,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update # options: none, update, create, create-drop, validate
-      show-sql: true
+    show-sql: true
 
   servlet:
     multipart:
