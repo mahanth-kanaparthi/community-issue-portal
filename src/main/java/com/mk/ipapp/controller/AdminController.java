@@ -5,11 +5,11 @@ import com.mk.ipapp.dto.complaint.ComplaintDetail;
 import com.mk.ipapp.dto.complaint.ComplaintSummary;
 import com.mk.ipapp.dto.complaint.ComplaintUpdateRequest;
 import com.mk.ipapp.dto.officer.OfficerCreateRequest;
+import com.mk.ipapp.dto.officer.OfficerStatusUpdateRequest;
 import com.mk.ipapp.dto.officer.OfficerUpdateRequest;
 import com.mk.ipapp.dto.region.RegionCreateRequest;
 import com.mk.ipapp.dto.region.RegionUpdateRequest;
 import com.mk.ipapp.entity.Region;
-import com.mk.ipapp.entity.User;
 import com.mk.ipapp.service.ComplaintService;
 import com.mk.ipapp.service.OfficerService;
 import com.mk.ipapp.service.RegionService;
@@ -39,7 +39,7 @@ public class AdminController {
 
 
     // -- Region --
-    @PostMapping("/create_region")
+    @PostMapping("/regions")
     public ResponseEntity<Region> createRegion(@RequestBody RegionCreateRequest request) {
         return ResponseEntity.ok(regionService.createRegion(request));
     }
@@ -75,11 +75,10 @@ public class AdminController {
 
     @PatchMapping("/officers/{id}/status")
     public void changeOfficerStatus(@PathVariable Long id,
-                                    @RequestBody Map<String, Boolean> body) {
-        Boolean active = body.get("active");
-        if (active != null && !active) {
+                                    @RequestBody OfficerStatusUpdateRequest request) {
+        if (request.active() != null && !request.active()) {
             officerService.deactivateOfficer(id);
-        } else if (active != null && active) {
+        } else if (request.active() != null && request.active()) {
             officerService.activateOfficer(id);
         }
     }
@@ -106,9 +105,8 @@ public class AdminController {
 
     @PutMapping("/complaints/{id}/assign")
     public ComplaintDetail assignComplaint(@PathVariable Long id,
-                                              @RequestBody Map<String, Object> body) {
-        Long officerId = ((Number) body.get("officerId")).longValue();
-        String remark = (String) body.getOrDefault("remark", null);
+                                           @RequestBody Map<String, Long> request) {
+        Long officerId = request.get("officerId");
         UserSummary admin = userService.getCurrentUser();
         return complaintService.assignComplaintToOfficer(id, officerId, admin);
     }

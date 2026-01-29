@@ -2,6 +2,7 @@ package com.mk.ipapp.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -56,6 +57,10 @@ public class SecurityConfig {
                                         .requestMatchers("/api/v1/officer/**").hasRole("OFFICER")
                                         .requestMatchers("/api/v1/user/**").hasRole("USER")
                                         .requestMatchers("/api/v1/puser/**").hasRole("P_USER")
+
+                                        //for frontend
+                                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
 
                                         //anything else
                                         .anyRequest().authenticated()

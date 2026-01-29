@@ -14,6 +14,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -44,9 +45,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request){
-
-        UserSummary user = userService.findByEmail(request.getEmail());
+    public ResponseEntity<AuthResponse> login(@Validated @RequestBody AuthRequest request){
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -54,6 +53,9 @@ public class AuthController {
                         request.getPassword()
                 )
         );
+
+        UserSummary user = userService.findByEmail(request.getEmail());
+
         String token = tokenProvider.generateToken(authentication);
 
         AuthResponse response = new AuthResponse();

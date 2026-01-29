@@ -33,7 +33,7 @@ public class UserController {
 
 
     // -- create complaint --
-    @PostMapping
+    @PostMapping("/complaints")
     public ResponseEntity<ComplaintDetail> createComplaint(@RequestBody @Validated ComplaintCreateRequest request){
 
         UserSummary currentUser = userService.getCurrentUser();
@@ -41,7 +41,7 @@ public class UserController {
             .body(complaintService.createComplaint(request, currentUser));
     }
 
-    @GetMapping
+    @GetMapping("/complaints")
     public ResponseEntity<Page<ComplaintSummary>> getMyComplaints(
         @RequestParam(required = false) String status,
         org.springframework.data.domain.Pageable pageable) {
@@ -51,7 +51,7 @@ public class UserController {
             return ResponseEntity.ok(complaintService.getComplaintsForUser(currentUser, status, pageable));
         }
 
-    @GetMapping("/{id}")
+    @GetMapping("/complaints/{id}")
     public ResponseEntity<ComplaintDetail> getComplaintDetail(@PathVariable Long id){
 
         UserSummary currentUser = userService.getCurrentUser();
@@ -59,7 +59,7 @@ public class UserController {
         return ResponseEntity.ok(complaintService.getComplaintDetailForUser(id, currentUser));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/complaints/{id}")
     public ResponseEntity<ComplaintDetail> updateComplaintDetails( @PathVariable Long id, 
         @RequestBody ComplaintDetailsUpdateRequest request){
 
@@ -68,7 +68,7 @@ public class UserController {
             return ResponseEntity.ok(complaintService.updateComplaintDetails(id, currentUser, request));
     }
 
-    @PostMapping("/updatedetails")
+    @PostMapping("/profile")
     public ResponseEntity<UserSummary> updateUserDetails(@RequestBody UserUpdateRequest request){
         UserSummary currentUser = userService.getCurrentUser();
         return ResponseEntity.ok(userService.updateUser(currentUser.getId(), request));
